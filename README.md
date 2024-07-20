@@ -1,2 +1,2 @@
 # Crossword_Parser
-Python project to collect nd parse data from completed crosswords
+Python project to collect and parse data from completed crosswords
