@@ -1,0 +1,10 @@
+Crossword image:
+
+need to get the number of Blue, red and grey - crop + pixel count
+alternatively, recognise writing at top left
+
+need to get number for score - handwriting recognition + crop
+
+test from running:
+3 missed a little
+21 missed a lil (july 20/ 21)
