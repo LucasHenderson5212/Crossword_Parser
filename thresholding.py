@@ -29,6 +29,13 @@ class Trackbar:
         elif threshold_type == 'canny':
             self.trackbar_names = ['Lower Threshold', 'Upper Threshold', 'Aperture Size']
             self.trackbar_limits = [(1, 255), (1, 255), (3, 7)]
+        elif threshold_type == 'hsv':
+            self.trackbar_names = ['Hue Lower', 'Hue Upper', 'Saturation Lower', 'Saturation Upper', 'Value Lower',
+                                   'Value Upper']
+            self.trackbar_limits = [(0, 255), (0, 255), (0, 255), (0, 255), (0, 255), (0, 255)]
+        elif threshold_type == 'bgr':
+            self.trackbar_names = ['Blue Lower', 'Blue Upper', 'Green Lower', 'Green Upper', 'Red Lower', 'Red Upper']
+            self.trackbar_limits = [(0, 255), (0, 255), (0, 255), (0, 255), (0, 255), (0, 255)]
 
         # create trackbars for thresholding
         for i in range(self.number_of_parameters):
@@ -70,6 +77,10 @@ class Trackbar:
                 cv2.setTrackbarPos(self.trackbar_names[2], self.window_name, self.parameters[2])
             filter_applied = cv2.Canny(self.modifier, self.parameters[0], self.parameters[1],
                                        apertureSize=self.parameters[2])
+        elif self.type == 'hsv' or self.type == 'bgr':
+            lower = (self.parameters[0], self.parameters[2], self.parameters[4])
+            upper = (self.parameters[1], self.parameters[3], self.parameters[5])
+            filter_applied = cv2.inRange(self.modifier, lower, upper)
         else:
             print('Invalid threshold type')
             return
