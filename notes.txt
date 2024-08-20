@@ -6,5 +6,5 @@ alternatively, recognise writing at top left
 need to get number for score - handwriting recognition + crop
 
 test from running:
-3 missed a little
-21 missed a lil (july 20/ 21)
+image 2 (3rd image) missed a little
+image 20 (21st image) missed a lil (july 20/ 21)

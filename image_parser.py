@@ -21,10 +21,10 @@ def find_grid(image):
     # Find contours
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # draw the coutnours on a copy of the image
-    image_copy = image.copy()
-    cv2.drawContours(image_copy, contours, -1, (0, 255, 0), 3)
-    show_image(image_copy, 'Contours')
+    # # draw the coutnours on a copy of the image
+    # image_copy = image.copy()
+    # cv2.drawContours(image_copy, contours, -1, (0, 255, 0), 3)
+    # show_image(image_copy, 'Contours')
 
     # Initialize variables to store the largest rectangle found
     largest_area = 0
@@ -91,10 +91,12 @@ def get_crossword_image(image):
     contour = find_grid(image)
     if contour is not None:
         grid_image = straighten_image(contour, image)
-        show_image(og_image, 'Original Image')
-        show_image(grid_image, 'Straightened Image')
+        # show_image(og_image, 'Original Image')
+        # show_image(grid_image, 'Straightened Image')
 
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        return grid_image
     else:
         print('No grid found')
+        return image
