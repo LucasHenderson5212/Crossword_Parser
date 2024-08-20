@@ -1,5 +1,3 @@
-import time
-
 import cv2
 import numpy as np
 
@@ -97,10 +95,7 @@ def filter_coords(coords):
     return filtered_coords
 
 
-def get_grid_squares(image_path):
-    image = cv2.imread(image_path)
-
-    # Convert the image to grayscale
+def get_grid_squares(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     if TESTING:
@@ -246,5 +241,3 @@ def count_squares(squares):
     #         show_image(square, 'Normal square')
 
     return red_squares, blue_squares, normal_squares, black_squares
-
-

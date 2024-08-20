@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import datetime
 
 
 def show_image(image, window_name='window'):
@@ -21,7 +22,7 @@ def find_grid(image):
     # Find contours
     contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # # draw the coutnours on a copy of the image
+    # draw the contours on a copy of the image
     # image_copy = image.copy()
     # cv2.drawContours(image_copy, contours, -1, (0, 255, 0), 3)
     # show_image(image_copy, 'Contours')
@@ -86,8 +87,6 @@ def straighten_image(largest_contour, image):
 
 
 def get_crossword_image(image):
-    og_image = image.copy()
-
     contour = find_grid(image)
     if contour is not None:
         grid_image = straighten_image(contour, image)
@@ -100,3 +99,29 @@ def get_crossword_image(image):
     else:
         print('No grid found')
         return image
+
+
+def get_date(image_name):
+    image_number = image_name.split('_')[1].split('.')[0]
+
+    # Calculate the date starting from January 1st
+    start_date = datetime.date(2024, 1, 1)
+
+    # Initialize counters
+    combined_day_count = 0
+    current_date = start_date
+
+    while combined_day_count < image_number:
+        # Move to the next day
+        current_date += datetime.timedelta(days=1)
+
+        # Count combined weekend as a single day
+        if current_date.weekday() == 5:  # Saturday
+            combined_day_count += 1
+            current_date += datetime.timedelta(days=1)  # Skip to Monday
+        elif current_date.weekday() == 6:  # Sunday
+            continue  # Already counted as part of Saturday
+        else:
+            combined_day_count += 1
+
+    return current_date
