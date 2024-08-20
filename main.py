@@ -21,7 +21,7 @@ if __name__ == '__main__':
     #     sc.count_squares(squares)
     #     show_image(cv2.imread(IMAGE_PATH + path))
 
-    image_path = r"C:\Users\Lucas\Documents\Crosswords\Cropped Images\grid_image4.png"
+    image_path = r"C:\Users\Lucas\Documents\Crosswords\Cropped Images\grid_image13.png"
     show_image(cv2.imread(image_path))
     squares = sc.get_grid_squares(image_path)
     sc.count_squares(squares)

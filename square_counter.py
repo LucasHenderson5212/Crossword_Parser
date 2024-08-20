@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import numpy as np
 
@@ -21,21 +23,25 @@ RED_PIXEL_COUNT_THRESHOLD = 50
 
 BLUE_PIXEL_LOWER_THRESHOLD = (145, 0, 0)
 BLUE_PIXEL_UPPER_THRESHOLD = (255, 255, 130)
-BLUE_PIXEL_COUNT_THRESHOLD = 70
+BLUE_PIXEL_COUNT_THRESHOLD = 60
+
+MIN_COLOUR_PIXEL_COUNT = 5
 
 BLACK_PIXEL_LOWER_THRESHOLD = (50, 50, 50)
 BLACK_PIXEL_UPPER_THRESHOLD = (90, 90, 90)
 BLACK_PIXEL_PERCENT_THRESHOLD = 0.90
 
 TESTING = False
+SHOW_IMAGES = False
 
 
-def show_image(image, window_name='window'):
+def show_image(image, window_name='window', wait=True):
     cv2.namedWindow(window_name, cv2.WINDOW_KEEPRATIO)
     cv2.imshow(window_name, image)
     cv2.resizeWindow(window_name, 500, 500)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if wait:
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 def trackbar_test(gray, image):
@@ -104,11 +110,12 @@ def get_grid_squares(image_path):
     lines = cv2.HoughLinesP(edges, HOUGH_RHO, HOUGH_THETA, threshold=HOUGH_THRESHOLD,
                             minLineLength=HOUGH_MIN_LINE_LENGTH, maxLineGap=HOUGH_MAX_LINE_GAP)
 
-    # draw and show lines
-    for line in lines:
-        x1, y1, x2, y2 = line[0]
-        cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    # show_image(image, 'Lines')
+    if SHOW_IMAGES:
+        # draw and show lines
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        show_image(image, 'Lines')
 
     # Initialize lists to hold the x and y coordinates of the grid lines
     x_coords = []
@@ -127,15 +134,6 @@ def get_grid_squares(image_path):
 
     # Remove duplicates and sort the coordinates
     y_coords = filter_coords(y_coords)
-    print(x_coords)
-    print(y_coords)
-
-    if TESTING:
-        # draw a circle at each y coorod
-        draw_img = image.copy()
-        for coord in y_coords:
-            cv2.circle(draw_img, (x_coords[1], coord), 5, (0, 0, 255), -1)
-        show_image(draw_img, 'Circles')
 
     # Calculate the grid size
     grid_cols = len(x_coords) - 1  # Number of vertical lines - 1 gives us the number of columns
@@ -147,6 +145,14 @@ def get_grid_squares(image_path):
     print(f"Cell width: {cell_width}, Cell height: {cell_height}")
     # Output the grid size and the first 10 grid coordinates
     print(f"Detected Grid Size (height x width): {grid_rows}x{grid_cols}\n")
+
+    if SHOW_IMAGES:
+        draw_img = image.copy()
+        for coord in x_coords:
+            cv2.circle(draw_img, (coord, y_coords[1]), 8, (0, 150, 255), -1)
+        for coord in y_coords:
+            cv2.circle(draw_img, (x_coords[1], coord), 5, (0, 0, 255), -1)
+        show_image(draw_img, 'Circles')
 
     # Create a list to hold the coordinates of each square in the grid
     grid_coordinates = []
@@ -175,7 +181,6 @@ def count_squares(squares):
     normal_squares = []
     black_squares = []
     for square in squares:
-
         red_pixels = cv2.inRange(square, RED_PIXEL_LOWER_THRESHOLD, RED_PIXEL_UPPER_THRESHOLD)
         blue_pixels = cv2.inRange(square, BLUE_PIXEL_LOWER_THRESHOLD, BLUE_PIXEL_UPPER_THRESHOLD)
         black_pixels = cv2.inRange(square, BLACK_PIXEL_LOWER_THRESHOLD, BLACK_PIXEL_UPPER_THRESHOLD)
@@ -183,45 +188,63 @@ def count_squares(squares):
         red_pixel_count = cv2.countNonZero(red_pixels)
         blue_pixel_count = cv2.countNonZero(blue_pixels)
         black_pixel_count = cv2.countNonZero(black_pixels)
-        # print('Red pixel count:', red_pixel_count)
-        # print('Blue pixel count:', blue_pixel_count)
+        print('Red pixel count:', red_pixel_count)
+        print('Blue pixel count:', blue_pixel_count)
         # print('Black pixel count:', black_pixel_count)
         # print('Total pixel count:', square.size/3)
         # print('Black pixel percentage:', black_pixel_count / (square.size / 3))
 
         if black_pixel_count / (square.size / 3) > BLACK_PIXEL_PERCENT_THRESHOLD:
-            # print('Black square')
+            print('Black square')
             black_squares.append(square)
-        elif red_pixel_count > RED_PIXEL_COUNT_THRESHOLD and blue_pixel_count > BLUE_PIXEL_COUNT_THRESHOLD:
-            cv2.imshow('Square', square)
-            # print('Red and blue square')
-            colour = input('Enter the colour of the square: ')
-            if colour.lower() == 'red':
-                red_squares.append(square)
-            elif colour.lower() == 'blue':
-                blue_squares.append(square)
-            else:
-                normal_squares.append(square)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
         elif red_pixel_count > RED_PIXEL_COUNT_THRESHOLD:
-            # print('Red square')
+            print('Red square')
             red_squares.append(square)
         elif blue_pixel_count > BLUE_PIXEL_COUNT_THRESHOLD:
-            # print('Blue square')
+            print('Blue square')
             blue_squares.append(square)
+        elif red_pixel_count > MIN_COLOUR_PIXEL_COUNT or blue_pixel_count > MIN_COLOUR_PIXEL_COUNT:
+            print('Red pixel count:', red_pixel_count)
+            print('Blue pixel count:', blue_pixel_count)
+            print('Unsure. [c]ontinue to prompt')
+            # show_image(square, "Prompt image", False)
+            # cv2.namedWindow("Prompt image", cv2.WINDOW_KEEPRATIO)
+            # cv2.imshow("Prompt image", square)
+            # cv2.resizeWindow("Prompt image", 500, 500)
+            # while True:
+            #     if cv2.waitKey(1) & 0xFF == ord('c'):
+            #         break
+            #     if cv2.getWindowProperty("Prompt image", cv2.WND_PROP_VISIBLE) < 1:
+            #         break
+            # colour = input('Enter the colour of the square ([n]ormal, [b]lue, [r]ed): ')
+            # cv2.destroyAllWindows()
+            colour = 'None'
+            if colour.lower() == 'r':
+                red_squares.append(square)
+            elif colour.lower() == 'b':
+                blue_squares.append(square)
+            elif colour.lower() == 'n':
+                normal_squares.append(square)
+            else:
+                normal_squares.append(square)
         else:
-            # print('Normal square')
+            print('Normal square')
             normal_squares.append(square)
+        # show_image(square)
         # print()
 
     print('Total red squares:', len(red_squares))
     print('Total blue squares:', len(blue_squares))
+    print('Total black squares:', len(black_squares))
     print('Total normal squares:', len(normal_squares))
+    print()
+
+    # if len(red_squares) != 23:
+    #     for square in red_squares:
+    #         show_image(square, 'Red square')
+    #     for square in normal_squares:
+    #         show_image(square, 'Normal square')
 
     return red_squares, blue_squares, normal_squares, black_squares
 
-    # for square in normal_squares:
-    #     cv2.imshow('Normal square', square)
-    #     cv2.waitKey(0)
-    #     cv2.destroyAllWindows()
+

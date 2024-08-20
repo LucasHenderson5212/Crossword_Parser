@@ -3,44 +3,55 @@ import unittest
 import square_counter as sc
 
 GRID_15_BY_15 = 225
-CORRECT_SQUARE_COUNTS = [(20, 15), (44, 15), (0, 0), (0, 2), (8, 3), (1, 20), (31, 11), (50, 15), (0, 0), (4, 10),
-                         (8, 4), (21, 0)]
+GRID_16_BY_15 = 240
+CORRECT_SQUARE_COUNTS = [(20, 15), (44, 15), (27, 0), (0, 0), (0, 2), (8, 3), (1, 20), (31, 11), (50, 15), (0, 0),
+                         (4, 10), (8, 4), (21, 0), (23, 41), (32, 38), (4, 0), (2, 3), (2, 37), (15, 31), (10, 29),
+                         (19, 31), (19, 31), (0, 0), (3, 3)]
+
 
 class TestSquareCounter(unittest.TestCase):
     TEST_IMAGE_PATH = r"C:\Users\Lucas\Documents\Crosswords\Cropped Images"
 
     def test_grid_squares(self):
-        expected_square_count = 225
-        for image_number in range(12):
+        for image_number in range(22):
             if image_number == 2 or image_number == 20:
                 continue
             with self.subTest(image_number=image_number):
                 squares = sc.get_grid_squares(self.TEST_IMAGE_PATH + fr"\grid_image{image_number}.png")
-                self.assertEqual(len(squares), GRID_15_BY_15,
-                                 f"Failed for image number {image_number}. Expected {GRID_15_BY_15}, got {len(squares)}")
+                if image_number == 6 or image_number == 17:
+                    self.assertEqual(len(squares), GRID_16_BY_15,
+                                     f"Failed for image number {image_number}."
+                                     f"Expected GRID_16_BY_15, got {len(squares)}")
+                else:
+                    self.assertEqual(len(squares), GRID_15_BY_15,
+                                     f"Failed for image number {image_number}. Expected {GRID_15_BY_15},"
+                                     f"got {len(squares)}")
+
+    def test_grid_colour_counts(self):
+        for image_number in range(22):
+            if image_number == 2 or image_number == 20:
+                continue
+            with self.subTest(image_number=image_number):
+                squares = sc.get_grid_squares(self.TEST_IMAGE_PATH + fr"\grid_image{image_number}.png")
+                red_squares, blue_squares, normal_squares, black_squares = sc.count_squares(squares)
+                self.assertEqual(len(red_squares), CORRECT_SQUARE_COUNTS[image_number][0],
+                                 f"Failed for image number {image_number}."
+                                 f"Expected {CORRECT_SQUARE_COUNTS[image_number][0]}, got {len(red_squares)}")
+                self.assertEqual(len(blue_squares), CORRECT_SQUARE_COUNTS[image_number][1],
+                                 f"Failed for image number {image_number}."
+                                 f"Expected {CORRECT_SQUARE_COUNTS[image_number][1]}, got {len(blue_squares)}")
+
+                if image_number == 6 or image_number == 17:
+                    self.assertEqual(len(red_squares) + len(blue_squares) + len(normal_squares) + len(black_squares),
+                                     GRID_16_BY_15, f"Failed for image number {image_number}. Expected {GRID_16_BY_15},"
+                                                    f"got {len(red_squares) + len(blue_squares) + len(normal_squares) +
+                                                           len(black_squares)}")
+                else:
+                    self.assertEqual(len(red_squares) + len(blue_squares) + len(normal_squares) + len(black_squares),
+                                     GRID_15_BY_15, f"Failed for image number {image_number}. Expected {GRID_15_BY_15},"
+                                                    f"got {len(red_squares) + len(blue_squares) + len(normal_squares) +
+                                                           len(black_squares)}")
+
 
 if __name__ == '__main__':
     unittest.main()
-
-
-#     def test_15x15_grid(self, image_number):
-#         squares = sc.get_grid_squares(TEST_IMAGE_PATH + fr"\grid_image{image_number}.png")
-#         self.assertEqual(len(squares), GRID_15_BY_15)
-#
-#     def test_15x15_image(self, image_number, red_squares_count, blue_squares_count):
-#         squares = sc.get_grid_squares(
-#             rf"C:\Users\Lucas\Documents\Crosswords\Cropped Images\grid_image{image_number}.png")
-#         red_squares, blue_squares, normal_squares, black_squares = sc.count_squares(squares)
-#         self.assertEqual(len(red_squares), red_squares_count)
-#         self.assertEqual(len(blue_squares), blue_squares_count)
-#
-#
-# IMAGE_PATH = r"C:\Users\Lucas\Documents\Crosswords\Cropped Images"
-# if __name__ == '__main__':
-#     tester = TestSquareCounter()
-#     tester.test_15x15_grid(0)
-#     # for i in range(11):
-#     #     if i == 2 or i == 20:
-#     #         continue
-#     #     tester.test_15x15_grid(i)
-#     #     tester.test_15x15_image(i, CORRECT_SQUARE_COUNTS[i][0], CORRECT_SQUARE_COUNTS[i][1])
