@@ -1,4 +1,5 @@
 import cv2
+
 import image_parser
 import square_counter
 
@@ -29,3 +30,18 @@ class Crossword:
 
     def set_date(self, date):
         self.__date = date
+
+    def get_total_error_percent(self):
+        error_squares = len(self.red_squares) + len(self.blue_squares)
+        total_filled_squares = len(self.red_squares) + len(self.blue_squares) + len(self.normal_squares)
+        return error_squares / total_filled_squares * 100
+
+    def get_lookup_online_error_percent(self):
+        error_squares = len(self.blue_squares)
+        total_filled_squares = len(self.red_squares) + len(self.blue_squares) + len(self.normal_squares)
+        return error_squares / total_filled_squares * 100
+
+    def get_lookup_answer_error_percent(self):
+        error_squares = len(self.red_squares)
+        total_filled_squares = len(self.red_squares) + len(self.blue_squares) + len(self.normal_squares)
+        return error_squares / total_filled_squares * 100
