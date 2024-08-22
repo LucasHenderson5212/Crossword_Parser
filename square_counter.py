@@ -1,5 +1,8 @@
+import tkinter as tk
+
 import cv2
 import numpy as np
+from PIL import Image, ImageTk
 
 # Processing Constants
 CANNY_LOWER_THRESHOLD = 150
@@ -23,7 +26,7 @@ BLUE_PIXEL_LOWER_THRESHOLD = (145, 0, 0)
 BLUE_PIXEL_UPPER_THRESHOLD = (255, 255, 130)
 BLUE_PIXEL_COUNT_THRESHOLD = 60
 
-MIN_COLOUR_PIXEL_COUNT = 5
+MIN_COLOUR_PIXEL_COUNT = 3
 
 BLACK_PIXEL_LOWER_THRESHOLD = (50, 50, 50)
 BLACK_PIXEL_UPPER_THRESHOLD = (90, 90, 90)
@@ -93,6 +96,43 @@ def filter_coords(coords):
             # Add the coordinate to the filtered list
             filtered_coords.append(int(coord))
     return filtered_coords
+
+
+def show_image_with_input(image):
+    # Create a Tkinter window
+    root = tk.Tk()
+    root.title("Image with Input")
+
+    # Convert the image to a format Tkinter can use
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image_pil = Image.fromarray(image_rgb)
+    image_tk = ImageTk.PhotoImage(image_pil)
+
+    # Create a label to display the image
+    label = tk.Label(root, image=image_tk)  # type: ignore
+    label.pack()
+
+    # Create an entry widget for text input
+    entry = tk.Entry(root)
+    entry.pack()
+
+    # Variable to store the input
+    user_input = tk.StringVar()
+
+    # Define a callback function to save the input and close the window
+    def on_submit():
+        user_input.set(entry.get())
+        root.destroy()
+
+    # Create a button to submit the input
+    button = tk.Button(root, text="Submit", command=on_submit)
+    button.pack()
+
+    # Run the Tkinter main loop
+    root.mainloop()
+
+    # Return the input
+    return user_input.get()
 
 
 def get_grid_squares(image):
